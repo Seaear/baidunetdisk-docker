@@ -1,12 +1,13 @@
-FROM jlesage/baseimage-gui:debian-9
+FROM jlesage/baseimage-gui:debian-11-v4
 
-ENV VERSION=4.14.5
+ENV VERSION=4.17.7
 ENV URI=https://issuepcdn.baidupcs.com/issue/netdisk/LinuxGuanjia/$VERSION/baidunetdisk_${VERSION}_amd64.deb
 
 ENV DISPLAY=":1"
 ENV ENABLE_CJK_FONT=1
 ENV TZ=Asia/Shanghai
 
+COPY rootfs/ /
 RUN apt-get update \
     && apt-get install -y --no-install-recommends wget curl  \
                           ca-certificates \
@@ -24,17 +25,12 @@ RUN apt-get update \
                           libuuid1              \  
                           libappindicator3-1    \
                           libsecret-1-0         \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN curl -L ${URI} -o /defaults/baidunetdisk.deb     \
+    && curl -L ${URI} -o /defaults/baidunetdisk.deb  \
     && apt-get install -y /defaults/baidunetdisk.deb \
-    && rm /defaults/baidunetdisk.deb 
-
-RUN \
-    APP_ICON_URL='https://raw.githubusercontent.com/KevinLADLee/baidunetdisk-docker/master/logo.png' && \
-    install_app_icon.sh "$APP_ICON_URL"
-
-COPY rootfs/ /
+    && rm /defaults/baidunetdisk.deb \
+    && rm -rf /var/lib/apt/lists/* \
+    && APP_ICON_URL='file:///logo.png' \
+    && install_app_icon.sh "$APP_ICON_URL"
 
 ENV APP_NAME="BaiduNetdisk" \
     S6_KILL_GRACETIME=8000
